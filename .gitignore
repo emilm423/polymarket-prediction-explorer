@@ -1,0 +1,14 @@
+node_modules/
+backend/node_modules/
+
+.env
+backend/.env
+
+markets.parquet
+app.py
+
+__pycache__/
+*.pyc
+
+.DS_Store
+Thumbs.db

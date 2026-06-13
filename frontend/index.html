@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Polymarket Prediction Explorer</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            padding: 42px 20px;
+            text-align: center;
+            border-bottom: 4px solid #020617;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 46px;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            margin-top: 12px;
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1500px;
+            margin: auto;
+            padding: 30px 0;
+        }
+
+        .panel {
+            background: #111827;
+            padding: 24px;
+            border-radius: 18px;
+            margin-bottom: 28px;
+            box-shadow: 0 0 24px rgba(0, 0, 0, 0.35);
+            border: 1px solid #1f2937;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #1e293b;
+            padding: 18px;
+            border-radius: 15px;
+            border: 1px solid #334155;
+            min-width: 0;
+        }
+
+        .stat-box h2 {
+            margin: 0;
+            color: #38bdf8;
+            font-size: clamp(22px, 2vw, 30px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-box p {
+            margin-bottom: 0;
+            color: #cbd5e1;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        input, select {
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+        }
+
+        input {
+            min-width: 330px;
+        }
+
+        button {
+            padding: 14px 18px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .secondary {
+            background: #334155;
+        }
+
+        .secondary:hover {
+            background: #475569;
+        }
+
+        .success {
+            background: #16a34a;
+        }
+
+        .success:hover {
+            background: #15803d;
+        }
+
+        .warning {
+            background: #ca8a04;
+        }
+
+        .warning:hover {
+            background: #a16207;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .danger:hover {
+            background: #b91c1c;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+        }
+
+        .count-pill {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 8px 12px;
+            border-radius: 999px;
+            color: #cbd5e1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid #334155;
+            box-shadow: 0 0 18px rgba(0, 0, 0, 0.28);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            line-height: 1.35;
+            color: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            margin-right: 6px;
+            margin-bottom: 8px;
+            background: #334155;
+            color: white;
+            font-weight: bold;
+        }
+
+        .open {
+            background: #16a34a;
+        }
+
+        .resolved {
+            background: #dc2626;
+        }
+
+        .competitive {
+            background: #ca8a04;
+        }
+
+        .favorite {
+            background: #7c3aed;
+        }
+
+        .moderate {
+            background: #2563eb;
+        }
+
+        .probability {
+            font-size: 34px;
+            font-weight: bold;
+            color: #38bdf8;
+            margin: 8px 0;
+        }
+
+        .small {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .muted {
+            color: #94a3b8;
+        }
+
+        .error {
+            background: #7f1d1d;
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Polymarket Prediction Explorer</h1>
+    <p>Local MySQL database + Node/Express JSON API + prediction market dashboard.</p>
+</header>
+
+<div class="container">
+
+    <div class="panel" id="stats">
+        <h2>Database Stats</h2>
+        <p>Loading stats...</p>
+    </div>
+
+    <div class="panel">
+        <div class="controls">
+            <input id="searchInput" placeholder="Search market, e.g. bitcoin, trump, NBA">
+
+            <select id="statusSelect">
+                <option value="open">Open only</option>
+                <option value="resolved">Resolved only</option>
+                <option value="all">All markets</option>
+            </select>
+
+            <button onclick="searchMarkets()">Search</button>
+            <button class="success" onclick="loadMarkets('/markets/open-top-volume', 'Open Markets by Volume')">Open Top Volume</button>
+            <button class="warning" onclick="loadMarkets('/markets/competitive', 'Competitive Open Markets')">Competitive</button>
+            <button onclick="loadMarkets('/markets/strong-favorites', 'Strong Favorites')">Strong Favorites</button>
+            <button class="secondary" onclick="loadMarkets('/markets/newest-open', 'Newest Open Markets')">Newest Open</button>
+            <button class="danger" onclick="loadMarkets('/markets/resolved', 'Resolved Historical Markets')">Resolved</button>
+            <button class="secondary" onclick="loadMarkets('/markets', 'All-Time Top Volume')">All-Time Top Volume</button>
+            <button onclick="loadMarkets('/markets/random-open', 'Random Open Market')">Random</button>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <h2 id="sectionTitle">Results</h2>
+        <span class="count-pill" id="resultCount">0 results</span>
+    </div>
+
+    <div class="grid" id="results"></div>
+
+</div>
+
+<script>
+const API_URL = "http://localhost:3000/api";
+
+function escapeHTML(value) {
+    if (value === null || value === undefined) {
+        return "N/A";
+    }
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatNumber(value) {
+    const number = Number(value || 0);
+
+    return number.toLocaleString(undefined, {
+        maximumFractionDigits: 2
+    });
+}
+
+function formatCompactNumber(value) {
+    const number = Number(value || 0);
+
+    return number.toLocaleString(undefined, {
+        notation: "compact",
+        maximumFractionDigits: 2
+    });
+}
+
+function formatDate(value) {
+    if (!value) {
+        return "N/A";
+    }
+
+    return String(value).replace("T", " ");
+}
+
+async function loadStats() {
+    try {
+        const response = await fetch(API_URL + "/markets/stats");
+        const stats = await response.json();
+
+        document.getElementById("stats").innerHTML = `
+            <h2>Database Stats</h2>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h2 title="${formatNumber(stats.total_markets)}">${formatNumber(stats.total_markets)}</h2>
+                    <p>Total Markets</p>
+                </div>
+
+                <div class="stat-box">
+                    <h2 title="${formatNumber(stats.open_markets)}">${formatNumber(stats.open_markets)}</h2>
+                    <p>Open Markets</p>
+                </div>
+
+                <div class="stat-box">
+                    <h2 title="${formatNumber(stats.resolved_markets)}">${formatNumber(stats.resolved_markets)}</h2>
+                    <p>Resolved Markets</p>
+                </div>
+
+                <div class="stat-box">
+                    <h2 title="${formatNumber(stats.total_volume)}">${formatCompactNumber(stats.total_volume)}</h2>
+                    <p>Total Volume</p>
+                </div>
+
+                <div class="stat-box">
+                    <h2 title="${formatNumber(stats.average_volume)}">${formatNumber(stats.average_volume)}</h2>
+                    <p>Average Volume</p>
+                </div>
+
+                <div class="stat-box">
+                    <h2 title="${formatNumber(stats.highest_volume)}">${formatCompactNumber(stats.highest_volume)}</h2>
+                    <p>Highest Volume</p>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        document.getElementById("stats").innerHTML = `
+            <h2>Database Stats</h2>
+            <div class="error">
+                Could not load stats.
+                <br><br>
+                Make sure <b>node index.js</b> is running inside the backend folder.
+            </div>
+        `;
+    }
+}
+
+async function loadMarkets(endpoint, title) {
+    document.getElementById("sectionTitle").innerText = "Loading...";
+    document.getElementById("resultCount").innerText = "Loading...";
+    document.getElementById("results").innerHTML = "";
+
+    try {
+        const response = await fetch(API_URL + endpoint);
+        const data = await response.json();
+
+        document.getElementById("sectionTitle").innerText = title;
+        document.getElementById("resultCount").innerText = data.length + " results";
+
+        const results = document.getElementById("results");
+        results.innerHTML = "";
+
+        if (data.length === 0) {
+            results.innerHTML = `<p class="muted">No results found.</p>`;
+            return;
+        }
+
+        data.forEach(market => {
+            const isResolved = Number(market.closed) === 1;
+
+            const statusClass = isResolved ? "resolved" : "open";
+            const statusText = isResolved ? "Resolved" : "Open";
+
+            let predictionClass = "moderate";
+
+            if (market.prediction_label === "Competitive") {
+                predictionClass = "competitive";
+            } else if (market.prediction_label === "Strong Favorite") {
+                predictionClass = "favorite";
+            }
+
+            const probability = market.highest_probability !== null
+                ? market.highest_probability + "%"
+                : "N/A";
+
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                <h3>${escapeHTML(market.question)}</h3>
+
+                <span class="badge ${statusClass}">${statusText}</span>
+                <span class="badge ${predictionClass}">${escapeHTML(market.prediction_label)}</span>
+
+                <p class="small"><b>Market ID:</b> ${escapeHTML(market.id)}</p>
+                <p class="small"><b>Event:</b> ${escapeHTML(market.event_title)}</p>
+                <p class="small"><b>Outcomes:</b> ${escapeHTML(market.answer1)} / ${escapeHTML(market.answer2)}</p>
+
+                <p class="small"><b>Volume:</b> ${formatCompactNumber(market.volume)} <span class="muted">(${formatNumber(market.volume)})</span></p>
+                <p class="small"><b>Created:</b> ${formatDate(market.created_at)}</p>
+                <p class="small"><b>End Date:</b> ${formatDate(market.end_date)}</p>
+
+                <p class="small muted">Highest implied probability:</p>
+                <div class="probability">${probability}</div>
+
+                <p class="small muted"><b>Raw outcome prices:</b> ${escapeHTML(market.outcome_prices)}</p>
+            `;
+
+            results.appendChild(card);
+        });
+
+    } catch (error) {
+        document.getElementById("sectionTitle").innerText = "Error";
+        document.getElementById("resultCount").innerText = "0 results";
+
+        document.getElementById("results").innerHTML = `
+            <div class="error">
+                Something went wrong while calling the Node/Express API.
+                <br><br>
+                Make sure <b>node index.js</b> is running inside the backend folder and check CMD for errors.
+            </div>
+        `;
+    }
+}
+
+function searchMarkets() {
+    const q = document.getElementById("searchInput").value;
+    const status = document.getElementById("statusSelect").value;
+
+    loadMarkets(
+        "/markets/search?q=" + encodeURIComponent(q) + "&status=" + encodeURIComponent(status),
+        "Search Results for: " + q
+    );
+}
+
+document.getElementById("searchInput").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        searchMarkets();
+    }
+});
+
+loadStats();
+loadMarkets("/markets/open-top-volume", "Open Markets by Volume");
+</script>
+
+</body>
+</html>
