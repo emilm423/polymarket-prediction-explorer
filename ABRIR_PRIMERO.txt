@@ -1,0 +1,92 @@
+PROYECTO: Polymarket Prediction Explorer
+
+Este proyecto es una aplicación web para consultar mercados de predicción de Polymarket usando una base de datos MySQL, un backend en Node.js/Express y un frontend en HTML, CSS y JavaScript.
+
+CONTENIDO DEL PROYECTO:
+
+* backend/: contiene el servidor Node.js/Express, rutas, controladores, modelos y conexión a MySQL.
+* frontend/: contiene la interfaz visual del proyecto.
+* load_markets_to_mysql.py: script usado para cargar datos desde el archivo original hacia MySQL.
+* README.md: explicación general del proyecto.
+* ABRIR_PRIMERO.txt: instrucciones rápidas para ejecutar el proyecto.
+
+IMPORTANTE SOBRE LA BASE DE DATOS:
+
+Por el tamaño del respaldo completo de la base de datos, el archivo SQL no se subió directamente a GitHub.
+
+El respaldo completo de la base de datos se encuentra en Google Drive:
+
+https://drive.google.com/file/d/1gF5n8kBRfMBJt2iyXvDOVsWgYRANKLY0/view?usp=sharing
+
+Archivo incluido en Drive:
+
+polymarket_db.zip
+
+Después de descargarlo:
+
+1. Descomprimir polymarket_db.zip.
+2. Abrir MySQL Workbench.
+3. Importar el archivo polymarket_db.sql.
+4. Confirmar que la base de datos se llame polymarket_db.
+
+PASOS PARA EJECUTAR EL PROYECTO:
+
+1. Abrir MySQL Workbench.
+2. Importar la base de datos desde polymarket_db.sql.
+3. Abrir CMD.
+4. Entrar a la carpeta del backend:
+
+cd backend
+
+5. Instalar dependencias si no existen:
+
+npm install
+
+6. Crear el archivo .env usando .env.example como referencia.
+
+Ejemplo:
+
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=tu_password
+DB_NAME=polymarket_db
+DB_PORT=3306
+PORT=3000
+
+7. Ejecutar el backend:
+
+node index.js
+
+8. Abrir en el navegador:
+
+http://localhost:3000/api
+
+9. Abrir el frontend:
+
+frontend/index.html
+
+FUNCIONES DEL SISTEMA:
+
+* Consultar estadísticas generales de la base de datos.
+* Buscar mercados por palabra clave.
+* Consultar mercados activos.
+* Consultar mercados cerrados.
+* Consultar mercados con mayor volumen.
+* Consultar mercados competitivos.
+* Consultar mercados con favoritos fuertes.
+* Mostrar los resultados en una interfaz web visual.
+
+TECNOLOGÍAS USADAS:
+
+* MySQL
+* MySQL Workbench
+* Python
+* Node.js
+* Express
+* MySQL2
+* CORS
+* Dotenv
+* HTML
+* CSS
+* JavaScript
+* JSON
