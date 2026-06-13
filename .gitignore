@@ -14,3 +14,4 @@ __pycache__/
 Thumbs.db
 
 database/polymarket_db.sql
+database/polymarket_db.zip
